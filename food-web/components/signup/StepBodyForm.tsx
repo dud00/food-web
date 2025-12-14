@@ -34,31 +34,31 @@ export default function StepBodyForm() {
 
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-800">나이</label>
-          <input
+            <input
             className="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2"
             type="number"
-            {...register("age")}
-          />
+            {...register("age", { valueAsNumber: true })}
+            />
           {errors.age?.message && <p className="text-xs text-red-600">{errors.age.message}</p>}
         </div>
 
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-800">키 (cm)</label>
-          <input
+            <input
             className="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2"
             type="number"
-            {...register("heightCm")}
-          />
+            {...register("heightCm", { valueAsNumber: true })}
+            />
           {errors.heightCm?.message && <p className="text-xs text-red-600">{errors.heightCm.message}</p>}
         </div>
 
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-800">몸무게 (kg)</label>
-          <input
+            <input
             className="w-full rounded-xl border px-3 py-2 outline-none focus:ring-2"
             type="number"
-            {...register("weightKg")}
-          />
+            {...register("weightKg", { valueAsNumber: true })}
+            />
           {errors.weightKg?.message && <p className="text-xs text-red-600">{errors.weightKg.message}</p>}
         </div>
       </div>

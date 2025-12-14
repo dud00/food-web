@@ -40,19 +40,19 @@ export function clearUser() {
 // ---------- Session ----------
 export function setSession() {
   if (typeof window === "undefined") return;
-
-  // localStorage는 UI용(자동 로그인 판단 등)
-  localStorage.setItem(SESSION_KEY, JSON.stringify({ loggedIn: true, at: Date.now() }));
-
-  // cookie는 middleware용(접근 제어)
-  document.cookie = `auth=1; Path=/; Max-Age=${60 * 60 * 24 * 7}`;
+  localStorage.setItem("food.session", "1");
+  document.cookie = "auth=1; path=/; SameSite=Lax";
 }
 
 export function clearSession() {
   if (typeof window === "undefined") return;
 
-  localStorage.removeItem(SESSION_KEY);
-  document.cookie = "auth=; Path=/; Max-Age=0";
+  // localStorage 정리
+  localStorage.removeItem("food.session");
+
+  // ✅ 쿠키 삭제 (path=/ 필수)
+  document.cookie = "auth=; Max-Age=0; path=/";
+  document.cookie = "auth=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
 }
 
 export function hasSessionInStorage(): boolean {
@@ -67,4 +67,18 @@ export function hasSessionInStorage(): boolean {
   } catch {
     return false;
   }
+}
+
+export function updateUserProfile(profile: StoredUser["profile"]) {
+  if (typeof window === "undefined") return;
+
+  const user = getUser();
+  if (!user) return;
+
+  const next: StoredUser = {
+    ...user,
+    profile,
+  };
+
+  saveUser(next);
 }

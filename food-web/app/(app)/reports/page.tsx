@@ -1,6 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from "recharts";
 
 type Meal = { id: string; date: string; type: string; name: string; kcal: number };
 
@@ -22,7 +31,7 @@ function iso(d: Date) {
 
 function startOfWeek(date: Date) {
   const d = new Date(date);
-  const day = d.getDay(); // 0(Sun)~6
+  const day = d.getDay(); // 0~6
   const diff = (day + 6) % 7; // Monday start
   d.setDate(d.getDate() - diff);
   d.setHours(0, 0, 0, 0);
@@ -34,14 +43,14 @@ export default function ReportsPage() {
   const meals = useMemo(() => (typeof window === "undefined" ? [] : loadMeals()), []);
   const today = useMemo(() => new Date(), []);
 
-  const grouped = useMemo(() => {
-    const map = new Map<string, number>();
+  const data = useMemo(() => {
+    const rows: { label: string; kcal: number }[] = [];
 
     if (tab === "일간") {
       const key = iso(today);
       const sum = meals.filter((m) => m.date === key).reduce((a, m) => a + (Number(m.kcal) || 0), 0);
-      map.set(key, sum);
-      return Array.from(map.entries()).map(([label, kcal]) => ({ label, kcal }));
+      rows.push({ label: key.slice(5), kcal: sum }); // MM-DD
+      return rows;
     }
 
     if (tab === "주간") {
@@ -51,9 +60,9 @@ export default function ReportsPage() {
         d.setDate(start.getDate() + i);
         const key = iso(d);
         const sum = meals.filter((m) => m.date === key).reduce((a, m) => a + (Number(m.kcal) || 0), 0);
-        map.set(key, sum);
+        rows.push({ label: key.slice(5), kcal: sum }); // MM-DD
       }
-      return Array.from(map.entries()).map(([label, kcal]) => ({ label, kcal }));
+      return rows;
     }
 
     // 월간(최근 30일)
@@ -62,14 +71,14 @@ export default function ReportsPage() {
       d.setDate(d.getDate() - i);
       const key = iso(d);
       const sum = meals.filter((m) => m.date === key).reduce((a, m) => a + (Number(m.kcal) || 0), 0);
-      map.set(key, sum);
+      rows.push({ label: key.slice(5), kcal: sum }); // MM-DD
     }
-    return Array.from(map.entries()).map(([label, kcal]) => ({ label, kcal }));
+    return rows;
   }, [meals, tab, today]);
 
-  const total = grouped.reduce((a, x) => a + x.kcal, 0);
-  const avg = grouped.length ? Math.round(total / grouped.length) : 0;
-  const max = grouped.reduce((m, x) => Math.max(m, x.kcal), 0);
+  const total = data.reduce((a, x) => a + x.kcal, 0);
+  const avg = data.length ? Math.round(total / data.length) : 0;
+  const max = data.reduce((m, x) => Math.max(m, x.kcal), 0);
 
   return (
     <div className="space-y-6">
@@ -102,13 +111,20 @@ export default function ReportsPage() {
         <Card title="최대 섭취" value={`${max} kcal`} sub="최고치 기준" />
       </div>
 
-      {/* 바 차트(간단) */}
+      {/* 차트 */}
       <div className="rounded-2xl border bg-white p-5">
         <div className="text-sm font-semibold">섭취 추이</div>
-        <div className="mt-4 space-y-2">
-          {grouped.map((x) => (
-            <BarRow key={x.label} label={tab === "월간" ? x.label.slice(5) : x.label} value={x.kcal} max={max || 1} />
-          ))}
+
+        <div className="mt-4 h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+              <YAxis tick={{ fontSize: 12 }} />
+              <Tooltip />
+              <Bar dataKey="kcal" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
 
         {meals.length === 0 && (
@@ -127,19 +143,6 @@ function Card({ title, value, sub }: { title: string; value: string; sub: string
       <div className="text-xs text-gray-500">{title}</div>
       <div className="mt-2 text-xl font-semibold">{value}</div>
       <div className="mt-1 text-xs text-gray-500">{sub}</div>
-    </div>
-  );
-}
-
-function BarRow({ label, value, max }: { label: string; value: number; max: number }) {
-  const pct = Math.round((value / max) * 100);
-  return (
-    <div className="flex items-center gap-3">
-      <div className="w-16 text-xs text-gray-500">{label}</div>
-      <div className="flex-1 h-3 rounded-full bg-gray-100 overflow-hidden">
-        <div className="h-3 bg-gray-900" style={{ width: `${pct}%` }} />
-      </div>
-      <div className="w-20 text-right text-xs text-gray-600">{value} kcal</div>
     </div>
   );
 }

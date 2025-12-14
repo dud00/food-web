@@ -16,8 +16,8 @@ export default function SidebarNav() {
   return (
     <aside className="w-64 shrink-0 border-r bg-white">
       <div className="p-5">
-        <div className="text-lg font-semibold">FOOD</div>
-        <div className="text-xs text-gray-500 mt-1">식단 기록 웹</div>
+        <div className="text-lg font-semibold">NutrAI</div>
+        <div className="text-xs text-gray-500 mt-1">AI 식단 기록 웹</div>
       </div>
 
       <nav className="px-3 pb-4 space-y-1">
