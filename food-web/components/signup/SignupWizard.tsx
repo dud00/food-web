@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 import type { SignupData } from "@/types/signup";
 import { fullSignupSchema, step1Schema, step2Schema, step3Schema } from "@/lib/schemas";
-import { saveUser } from "@/lib/auth.client";
+import { registerUser, isUsernameTaken } from "@/lib/auth.client";
 
 import StepIndicator from "./StepIndicator";
 import StepAccountForm from "./StepAccountForm";
@@ -17,7 +17,9 @@ import StepGoalForm from "./StepGoalForm";
 import WizardFooter from "./WizardFooter";
 
 const defaultValues: SignupData = {
-  email: "",
+  name: "",
+  username: "",
+  email: "", // ✅ 추가
   password: "",
   passwordConfirm: "",
 
@@ -43,7 +45,7 @@ export default function SignupWizard() {
   });
 
   const stepFields = useMemo(() => {
-    if (step === 1) return ["email", "password", "passwordConfirm"] as const;
+    if (step === 1) return ["name", "username", "email", "password", "passwordConfirm"] as const;
     if (step === 2) return ["gender", "age", "heightCm", "weightKg"] as const;
     return ["goal", "activityLevel", "preferences"] as const;
   }, [step]);
@@ -75,35 +77,30 @@ export default function SignupWizard() {
   }
 
 async function onSubmitAll(data: SignupData) {
-  setSubmitting(true);
-  try {
-    console.log("✅ onSubmitAll 실행됨", data);
-
-    saveUser({
-      email: data.email,
-      password: data.password,
-      profile: {
-        gender: data.gender,
-        age: data.age,
-        heightCm: data.heightCm,
-        weightKg: data.weightKg,
-        goal: data.goal,
-        activityLevel: data.activityLevel,
-        preferences: data.preferences,
-      },
-    });
-
-    // ✅ 저장 직후 바로 확인 (이 값이 null이면 저장이 안 된 것)
-    console.log("✅ 저장 직후 food.user =", localStorage.getItem("food.user"));
-
-    alert("가입이 완료되었어요! 이제 로그인 해주세요 🙂");
-    router.replace("/login"); // push 대신 replace 추천
-  } catch (err) {
-    console.error("❌ 회원가입 저장 실패", err);
-    alert("회원가입 저장 중 오류가 발생했어요. 콘솔을 확인해주세요.");
-  } finally {
-    setSubmitting(false);
+  // ✅ 최종 중복 검사
+  if (isUsernameTaken(data.username)) {
+    alert("이미 사용 중인 아이디입니다. 다른 아이디로 가입해주세요.");
+    return;
   }
+
+  registerUser({
+    username: data.username,
+    name: data.name,
+    email: data.email, // ✅ 저장
+    password: data.password,
+    profile: {
+      gender: data.gender,
+      age: data.age,
+      heightCm: data.heightCm,
+      weightKg: data.weightKg,
+      goal: data.goal,
+      activityLevel: data.activityLevel,
+      preferences: data.preferences,
+    },
+  });
+
+  alert("가입이 완료되었어요! 이제 로그인 해주세요 🙂");
+  router.push("/login");
 }
 
 

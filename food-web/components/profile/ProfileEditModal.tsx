@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getUser, updateUserProfile } from "@/lib/auth.client";
+import { getSessionUser, updateUserProfile } from "@/lib/auth.client";
 import type { StoredUser } from "@/lib/auth.client";
 
 type Profile = StoredUser["profile"];
@@ -29,7 +29,7 @@ export default function ProfileEditModal({
   // ✅ 모달이 열릴 때마다 최신 프로필 로드
   useEffect(() => {
     if (!open) return;
-    const u = getUser();
+    const u = getSessionUser();
     if (u?.profile) setProfile(u.profile);
   }, [open]);
 

@@ -1,6 +1,9 @@
+// lib/auth.client.ts
 export type StoredUser = {
-  email: string;
-  password: string; // 데모용(실서비스는 절대 평문 저장 X)
+  name: string;
+  username: string;
+  email: string; // ✅ 추가
+  password: string;
   profile: {
     gender: "male" | "female";
     age: number;
@@ -12,73 +15,96 @@ export type StoredUser = {
   };
 };
 
-const USER_KEY = "food.user";
+const USERS_KEY = "food.users";
 const SESSION_KEY = "food.session";
 
-// ---------- User ----------
-export function saveUser(user: StoredUser) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
+/* ---------------- users ---------------- */
+
+export function getUsers(): StoredUser[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem(USERS_KEY) || "[]");
+  } catch {
+    return [];
+  }
 }
 
-export function getUser(): StoredUser | null {
+export function saveUsers(users: StoredUser[]) {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+
+// ✅ 아이디 중복 확인
+export function isUsernameTaken(username: string): boolean {
+  const users = getUsers();
+  return users.some(
+    (u) => u.username.toLowerCase() === username.trim().toLowerCase()
+  );
+}
+
+// ✅ 회원가입 저장
+export function registerUser(user: StoredUser) {
+  if (isUsernameTaken(user.username)) {
+    throw new Error("이미 사용 중인 아이디입니다.");
+  }
+  const users = getUsers();
+  users.push(user);
+  saveUsers(users);
+}
+
+/* ---------------- session ---------------- */
+
+export function getSessionUser(): StoredUser | null {
   if (typeof window === "undefined") return null;
-  const raw = localStorage.getItem(USER_KEY);
-  if (!raw) return null;
   try {
-    return JSON.parse(raw) as StoredUser;
+    return JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
   } catch {
     return null;
   }
 }
 
-export function clearUser() {
-  if (typeof window === "undefined") return;
-  localStorage.removeItem(USER_KEY);
+export function hasSession(): boolean {
+  return !!getSessionUser();
 }
 
-// ---------- Session ----------
-export function setSession() {
+export function setSession(user: StoredUser) {
   if (typeof window === "undefined") return;
-  localStorage.setItem("food.session", "1");
-  document.cookie = "auth=1; path=/; SameSite=Lax";
-}
-
-export function clearSession() {
-  if (typeof window === "undefined") return;
-
-  // localStorage 정리
-  localStorage.removeItem("food.session");
-
-  // ✅ 쿠키 삭제 (path=/ 필수)
-  document.cookie = "auth=; Max-Age=0; path=/";
-  document.cookie = "auth=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-}
-
-export function hasSessionInStorage(): boolean {
-  if (typeof window === "undefined") return false;
-
-  const raw = localStorage.getItem(SESSION_KEY);
-  if (!raw) return false;
-
   try {
-    const parsed = JSON.parse(raw) as { loggedIn?: boolean };
-    return !!parsed.loggedIn;
-  } catch {
-    return false;
+    localStorage.setItem("food.session", JSON.stringify(user));
+  } catch (e) {
+    console.error("setSession failed:", e);
+    throw e;
   }
 }
 
-export function updateUserProfile(profile: StoredUser["profile"]) {
-  if (typeof window === "undefined") return;
-
-  const user = getUser();
-  if (!user) return;
-
-  const next: StoredUser = {
-    ...user,
-    profile,
-  };
-
-  saveUser(next);
+export function logout() {
+  localStorage.removeItem(SESSION_KEY);
+  document.cookie = "auth=; Max-Age=0; path=/";
 }
+
+/* ---------------- auth ---------------- */
+
+export function loginWithUsername(username: string, password: string): boolean {
+  const users = getUsers();
+  const user = users.find(
+    (u) => u.username === username && u.password === password
+  );
+  if (!user) return false;
+  setSession(user);
+  document.cookie = "auth=1; path=/; SameSite=Lax"; // ✅ 미들웨어용
+  return true;
+}
+
+/* ---------------- profile ---------------- */
+
+export function updateUserProfile(profile: StoredUser["profile"]) {
+  const session = getSessionUser();
+  if (!session) return;
+
+  const users = getUsers().map((u) =>
+    u.username === session.username ? { ...u, profile } : u
+  );
+
+  saveUsers(users);
+  setSession({ ...session, profile });
+}
+

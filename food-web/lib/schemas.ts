@@ -3,9 +3,15 @@ import { z } from "zod";
 // Step 1
 export const step1Schema = z
   .object({
-    email: z.string().email("이메일 형식이 올바르지 않아요."),
-    password: z.string().min(8, "비밀번호는 8자 이상이어야 해요."),
-    passwordConfirm: z.string().min(8, "비밀번호 확인을 입력해주세요."),
+    name: z.string().min(2, "이름은 2자 이상 입력해주세요."),
+    username: z
+      .string()
+      .min(4, "아이디는 4자 이상이어야 해요.")
+      .max(20, "아이디는 20자 이하로 입력해주세요.")
+      .regex(/^[a-zA-Z0-9_]+$/, "아이디는 영문/숫자/_만 사용할 수 있어요."),
+       email: z.string().email("이메일 형식이 올바르지 않아요."), // ✅ 추가
+    password: z.string().min(6, "비밀번호는 6자 이상 입력해주세요."),
+    passwordConfirm: z.string().min(6, "비밀번호 확인을 입력해주세요."),
   })
   .refine((v) => v.password === v.passwordConfirm, {
     message: "비밀번호가 서로 달라요.",
@@ -27,6 +33,8 @@ export const step3Schema = z.object({
   preferences: z.array(z.string()).max(10, "선호 태그는 최대 10개까지 선택할 수 있어요."),
 });
 
-export const fullSignupSchema = step1Schema.and(step2Schema).and(step3Schema);
+export const fullSignupSchema = step1Schema
+  .and(step2Schema)
+  .and(step3Schema);
 
 export type SignupSchema = z.infer<typeof fullSignupSchema>;

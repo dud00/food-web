@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
-import { getUser } from "@/lib/auth.client";
+import { getSessionUser } from "@/lib/auth.client";
 import ProfileEditModal from "@/components/profile/ProfileEditModal";
 
 /* ---------------- utils ---------------- */
@@ -47,7 +47,7 @@ export default function DashboardPage() {
   const today = useMemo(() => todayISO(), []);
 
   useEffect(() => {
-    const user = getUser();
+    const user = getSessionUser();
     if (!user) return;
 
     // (데모) 목표 칼로리

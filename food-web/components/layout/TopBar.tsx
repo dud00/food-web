@@ -1,35 +1,42 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { clearSession, getUser } from "@/lib/auth.client";
 import { useEffect, useState } from "react";
+
+import { getSessionUser, logout } from "@/lib/auth.client";
 
 export default function TopBar() {
   const router = useRouter();
-  const [email, setEmail] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
 
   useEffect(() => {
-    const u = getUser();
-    if (u) setEmail(u.email);
+    const u = getSessionUser();
+    setUsername(u?.username ?? "");
   }, []);
 
-  function logout() {
-    clearSession();
-    router.replace("/login");
+  function onLogout() {
+    logout();
+    router.push("/login");
   }
 
   return (
-    <header className="h-16 border-b bg-white flex items-center justify-between px-6">
-      <div className="text-sm text-gray-600">오늘도 기록해볼까요? 🙂</div>
+    <div className="h-14 border-b bg-white px-6 flex items-center justify-between">
+      <div className="text-sm text-gray-700">
+        오늘도 기록해볼까요? 🙂
+      </div>
 
       <div className="flex items-center gap-3">
         <div className="text-sm text-gray-700">
-          {email ? <span className="font-medium">{email}</span> : "로그인 사용자"}
+          {username ? `${username}` : ""}
         </div>
-        <button onClick={logout} className="px-3 py-1.5 rounded-xl border text-sm">
+        <button
+          onClick={onLogout}
+          className="px-4 py-2 rounded-xl border text-sm"
+          type="button"
+        >
           로그아웃
         </button>
       </div>
-    </header>
+    </div>
   );
 }
