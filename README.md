@@ -1,157 +1,165 @@
-# 🍽 NutrAI – 식단 기록 웹 (Demo)
+# 🍽 NutrAI – AI 식단 기록 웹 (Demo)
 
-목포대학교 융합소프트웨어 3학년 캡스톤 프로젝트 AI 식단추천 프로그램 프로토타입입니다.
-NutrAI는 **식단 기록 · 리포트 · 식단 추천**을 중심으로 한
-**클라이언트 사이드 기반 데모 웹 애플리케이션**입니다.
-
-> ⚠️ 본 프로젝트는 **학습/포트폴리오/프로토타입 목적**의 데모이며,
-> 인증 및 데이터 저장은 **localStorage**를 사용합니다.
+국립목포대학교 융합소프트웨어 학과 3학년 캡스톤 프로젝트, AI 식단 추천 프로그램의 프로토타입입니다.
+NutrAI는 사용자의 **식단 기록, 신체 정보, 목표**를 기반으로
+섭취 현황을 한눈에 보여주고 향후 **리포트 및 식단 추천**을 제공하는 웹 애플리케이션입니다.
+본 프로젝트는 **프론트엔드 데모 버전(v0.1)** 으로, 모든 데이터는 **로컬 스토리지**에 저장됩니다.
 
 ---
 
-## ✨ 주요 기능
+## 1. 사용 환경
 
-### 🔐 회원가입 / 로그인
+NutrAI를 실행하기 위한 권장 환경은 다음과 같습니다.
 
-* 아이디(username) 기반 로그인
-* 회원가입 시 입력 정보
+| 구분      | 사양                            |
+| ------- | ----------------------------- |
+| 운영체제    | Windows 10 이상 / macOS / Linux |
+| 런타임     | Node.js 18 이상                 |
+| 패키지 매니저 | npm 또는 yarn                   |
+| 브라우저    | Chrome, Edge, Safari 최신 버전    |
+| 프레임워크   | Next.js 16 (App Router)       |
+| 언어      | TypeScript                    |
+| 스타일     | Tailwind CSS                  |
 
-  * 이름
-  * 아이디 (중복 체크)
-  * 이메일 (정보용, 로그인에는 사용하지 않음)
-  * 비밀번호
-* 로그인 성공 시 세션 유지 (localStorage)
+> ⚠️ 본 프로젝트는 서버/DB 없이 **클라이언트(LocalStorage) 기반**으로 동작합니다.
 
-### 🏠 홈 대시보드
+---
 
-* 오늘 섭취 칼로리 요약
-* 목표 대비 섭취율
-* 연속 기록(streak) 표시
-* 사용자 프로필 수정 (모달)
+## 2. 설치 및 실행 방법
 
-### 📝 식단 기록
+### 2-1. 프로젝트 설치
 
-* 날짜별 식단 기록
+```bash
+git clone https://github.com/your-id/food-web.git
+cd food-web
+npm install
+```
+
+### 2-2. 개발 서버 실행
+
+```bash
+npm run dev
+```
+
+브라우저에서 아래 주소로 접속합니다.
+
+```
+http://localhost:3000
+```
+
+---
+
+## 3. 주요 기능
+
+### ① 회원가입
+
+* 아이디 / 비밀번호 기반 회원가입
+* 3단계 가입 플로우
+
+  1. 계정 정보 (이름, 아이디, 이메일, 비밀번호)
+  2. 신체 정보 (성별, 나이, 키, 몸무게)
+  3. 목표 설정 (감량/유지/증량, 활동량, 선호 태그)
+* 가입 정보는 **localStorage**에 저장
+
+---
+
+### ② 로그인
+
+* 가입한 아이디/비밀번호로 로그인
+* 로그인 성공 시 `/dashboard`로 이동
+* 로그인 상태는 새로고침 후에도 유지됨
+
+---
+
+### ③ 홈(대시보드)
+
+* 오늘 섭취 칼로리
+* 목표 대비 달성률
+* 남은 칼로리
+* 연속 기록 일수
+* “프로필 수정” 버튼을 통해 신체/목표 정보 수정 가능
+
+---
+
+### ④ 식단 기록
+
 * 아침 / 점심 / 저녁 / 간식 구분
-* 칼로리 입력
-* localStorage 저장
-
-### 📊 리포트
-
-* 최근 식단 기록 요약
-* 섭취 추이 확인 (데모 UI)
-
-### 🤖 식단 추천 (Demo)
-
-* 사용자 목표/선호 기반 추천 UI
-* 실제 AI 연동 없이 UX 중심 구현
+* 음식명과 칼로리 입력
+* 날짜별 기록 관리
+* 기록 데이터는 localStorage에 저장
 
 ---
 
-## 🧱 기술 스택
+### ⑤ 리포트
 
-| 구분          | 기술                      |
-| ----------- | ----------------------- |
-| Framework   | Next.js 16 (App Router) |
-| Language    | TypeScript              |
-| Styling     | Tailwind CSS            |
-| State/Form  | React Hook Form + Zod   |
-| Auth (Demo) | localStorage 기반         |
-| Routing     | Next.js App Router      |
-| Deployment  | (미정 / 로컬 데모)            |
+* 날짜 기준 섭취 요약
+* 누적 섭취 현황 확인
+* (현재는 기본 구조 및 UI 중심의 데모 기능)
 
 ---
 
-## 📁 프로젝트 구조
+### ⑥ 식단 추천
+
+* 사용자 목표 및 섭취 현황 기반 추천 UI
+* 향후 AI 추천 로직 연동을 고려한 구조
+
+---
+
+## 4. 프로젝트 구조
 
 ```txt
 food-web/
 ├─ app/
-│  ├─ login/                # 로그인 페이지
-│  ├─ signup/               # 회원가입
-│  ├─ (app)/
-│  │  ├─ dashboard/         # 홈 대시보드
-│  │  ├─ logs/              # 식단 기록
-│  │  ├─ reports/           # 리포트
-│  │  └─ recommendations/  # 식단 추천
+│  ├─ (auth)/          # 로그인 / 회원가입
+│  ├─ (app)/           # 로그인 이후 영역
+│  │  ├─ dashboard/    # 홈(대시보드)
+│  │  ├─ logs/         # 식단 기록
+│  │  ├─ reports/      # 리포트
+│  │  └─ recommendations/ # 식단 추천
+│  └─ layout.tsx
 │
 ├─ components/
-│  ├─ signup/               # 회원가입 단계 컴포넌트
-│  ├─ profile/              # 프로필 수정 모달
-│  └─ layout/               # TopBar 등 공통 UI
+│  ├─ layout/          # AppShell, Sidebar, TopBar
+│  ├─ signup/          # 회원가입 단계 컴포넌트
+│  ├─ profile/         # 프로필 수정 모달
 │
 ├─ lib/
-│  ├─ auth.client.ts        # 인증/세션/유저 로직 (localStorage)
-│  └─ schemas.ts            # Zod 스키마
+│  ├─ auth.client.ts   # localStorage 인증/유저 관리
+│  ├─ health.ts        # 칼로리/BMR 관련 유틸
 │
 ├─ types/
-│  └─ signup.ts             # SignupData 타입
+│  └─ signup.ts
 │
 └─ README.md
 ```
 
 ---
 
-## 🔑 인증 구조 (중요)
+## 5. 데이터 저장 방식
 
-> ⚠️ 서버 인증이 아닌 **클라이언트 데모 구조**입니다.
+* 모든 데이터는 **브라우저 localStorage**에 저장됩니다.
+* 주요 키:
 
-### 사용자 저장
+  * `food.user` : 사용자 계정 및 프로필
+  * `food.session` : 로그인 세션
+  * `food.logs` : 식단 기록 데이터
 
-* key: `food.users`
-* 내용: 모든 가입 사용자 배열
-
-### 세션 저장
-
-* key: `food.session`
-* 내용: 현재 로그인된 사용자
-
-```ts
-localStorage.setItem("food.users", JSON.stringify(users));
-localStorage.setItem("food.session", JSON.stringify(user));
-```
-
-### 로그인 흐름
-
-1. 아이디 + 비밀번호 입력
-2. `loginWithUsername()` 실행
-3. localStorage에 세션 저장
-4. `/dashboard` 이동
+> ⚠️ 실제 서비스용이 아닌 **데모/학습 목적**의 구조입니다.
 
 ---
 
-## 🚧 제한 사항 (데모 특성)
+## 6. 향후 개선 예정
 
-* 서버 없음 (API / DB 미연동)
-* 보안 고려 ❌ (비밀번호 평문 저장)
-* 다중 사용자 동시 사용 ❌
-* 실제 AI 추천 ❌ (UI만 구현)
-
----
-
-## ▶️ 실행 방법
-
-```bash
-npm install
-npm run dev
-```
-
-접속:
-👉 [http://localhost:3000](http://localhost:3000)
+* 서버 인증 (JWT / OAuth)
+* DB 연동 (PostgreSQL, MySQL 등)
+* AI 기반 식단 추천
+* 영양소(탄/단/지) 분석
+* 차트 시각화 고도화
+* 모바일 UI 개선
 
 ---
 
-## 🔮 향후 개선 아이디어
+## 7. 라이선스
 
-* 서버 API 연동 (Next.js API / NestJS)
-* JWT 기반 인증
-* 실제 AI 추천 모델 연동
-* 리포트 차트 고도화
-* 모바일 UI 최적화
-
----
-
-## 📌 참고
-
-이 프로젝트는 **실제 서비스가 아닌 학습용 데모**입니다.
-구조 설계, 폼 처리, 상태 관리, UX 흐름을 중점적으로 구현했습니다.
+본 프로젝트는 **학습 및 개인 프로젝트 목적**으로 제작되었습니다.
+상업적 사용 전에는 별도의 검토가 필요합니다.
